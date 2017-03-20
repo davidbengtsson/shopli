@@ -15,6 +15,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import ch.dben.shopli.content.ProductsContract;
 import ch.dben.shopli.ui.ProductOverviewFragment;
@@ -26,6 +27,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ShoppingBasketHelper.init(getApplicationContext());
 
         setContentView(R.layout.activity_main);
 
@@ -148,5 +151,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onProductSelected(long id) {
         Log.d(TAG, "Product selected: " + id);
+        ShoppingBasketHelper.getsInstance().addToBasket(id, 1);
+
+        Toast.makeText(this, "Added product to basket", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (isFinishing()) {
+            ShoppingBasketHelper.getsInstance().clearBasket();
+        }
     }
 }

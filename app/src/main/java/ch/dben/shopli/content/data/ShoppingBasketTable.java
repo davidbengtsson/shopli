@@ -7,20 +7,24 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 import ch.dben.shopli.content.ProductsContract;
+import ch.dben.shopli.content.ShoppingBasketContract;
 
-public class ProductTable implements ProductsContract.Columns {
+public class ShoppingBasketTable implements ShoppingBasketContract.Columns, ShoppingBasketContract.ProductColumns{
 
-    private static final String TAG = ProductTable.class.getName();
+    private static final String TAG = ShoppingBasketTable.class.getName();
 
-    public static final String TABLE_NAME = "product";
+    public static final String TABLE_NAME = "shoppingbasket";
+
+    public static final String TABLE_PRODUCTS_JOIN = TABLE_NAME + " INNER JOIN " + ProductTable.TABLE_NAME
+            + " ON " + COLUMN_PRODUCT_ID + " = (" + ProductTable.TABLE_NAME + "." + COLUMN_ID + ")";
+
 
     private static final String DATABASE_CREATE = "CREATE TABLE " + TABLE_NAME
             + "("
             + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-            + COLUMN_DESCRIPTION + " TEXT NOT NULL, "
-            + COLUMN_PRICE + " INTEGER DEFAULT 0 CHECK(" + COLUMN_PRICE + " >= 0), "
-            + COLUMN_PRICE_UNIT + " CHAR(10) NOT NULL CHECK(" + COLUMN_PRICE_UNIT + " IN ('bag', 'dozen', 'bottle', 'can')), "
-            + "UNIQUE(" + COLUMN_DESCRIPTION  + ","  + COLUMN_PRICE_UNIT + ") ON CONFLICT IGNORE"
+            + COLUMN_PRODUCT_ID + " INTEGER, "
+            + COLUMN_QUANTITY + " INTEGER DEFAULT 0 CHECK(" + COLUMN_QUANTITY + " >= 0),  "
+            + "FOREIGN KEY(" + COLUMN_PRODUCT_ID  + ") REFERENCES "  + ProductTable.TABLE_NAME + "(" + ProductsContract.Columns.COLUMN_ID + ")"
             + ");";
 
     static void onCreate(SQLiteDatabase database) {
@@ -35,6 +39,8 @@ public class ProductTable implements ProductsContract.Columns {
 
     public static void checkProjection(String... projection) {
         String[] available = {
+                COLUMN_PRODUCT_ID,
+                COLUMN_QUANTITY,
                 COLUMN_ID,
                 COLUMN_DESCRIPTION,
                 COLUMN_PRICE,

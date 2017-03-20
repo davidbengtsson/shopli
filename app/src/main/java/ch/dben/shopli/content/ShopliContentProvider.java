@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import ch.dben.shopli.MainActivity;
 import ch.dben.shopli.content.data.DatabaseHelper;
 import ch.dben.shopli.content.data.ProductTable;
+import ch.dben.shopli.content.data.ShoppingBasketTable;
 
 public class ShopliContentProvider extends ContentProvider {
 
@@ -21,10 +22,17 @@ public class ShopliContentProvider extends ContentProvider {
 
     private static final int PRODUCTS = 100;
     private static final int PRODUCT_ID = 101;
+
+    private static final int BASKET = 200;
+    private static final int BASKET_ID = 201;
+
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     static {
         sURIMatcher.addURI(AUTHORITY, ProductsContract.BASE_PATH, PRODUCTS);
         sURIMatcher.addURI(AUTHORITY, ProductsContract.BASE_PATH + "/#", PRODUCT_ID);
+
+        sURIMatcher.addURI(AUTHORITY, ShoppingBasketContract.BASE_PATH, BASKET);
+        sURIMatcher.addURI(AUTHORITY, ShoppingBasketContract.BASE_PATH + "/#", BASKET_ID);
     }
 
     private DatabaseHelper database;
@@ -46,10 +54,20 @@ public class ShopliContentProvider extends ContentProvider {
         int uriType = sURIMatcher.match(uri);
         switch (uriType) {
             case PRODUCTS:
+                queryBuilder.setTables(ProductTable.TABLE_NAME);
                 break;
             case PRODUCT_ID:
+                queryBuilder.setTables(ProductTable.TABLE_NAME);
                 // append the ID to the query
                 queryBuilder.appendWhere(ProductsContract.Columns.COLUMN_ID + "=" + uri.getLastPathSegment());
+                break;
+            case BASKET:
+                queryBuilder.setTables(ShoppingBasketTable.TABLE_PRODUCTS_JOIN);
+                break;
+            case BASKET_ID:
+                queryBuilder.setTables(ShoppingBasketTable.TABLE_PRODUCTS_JOIN);
+                // append the ID to the query
+                queryBuilder.appendWhere(ShoppingBasketContract.Columns.COLUMN_ID + "=" + uri.getLastPathSegment());
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
@@ -72,6 +90,12 @@ public class ShopliContentProvider extends ContentProvider {
             case PRODUCT_ID:
                 return ProductsContract.CONTENT_ITEM_TYPE;
 
+            case BASKET:
+                return ShoppingBasketContract.CONTENT_TYPE;
+
+            case BASKET_ID:
+                return ShoppingBasketContract.CONTENT_ITEM_TYPE;
+
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -87,11 +111,16 @@ public class ShopliContentProvider extends ContentProvider {
             case PRODUCTS:
                 id = sqlDB.insert(ProductTable.TABLE_NAME, null, values);
                 break;
+
+            case BASKET:
+                id = sqlDB.insert(ShoppingBasketTable.TABLE_NAME, null, values);
+                break;
+
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
         getContext().getContentResolver().notifyChange(uri, null);
-        return Uri.parse(ProductsContract.BASE_PATH + "/" + id);
+        return uri.buildUpon().appendPath(Long.toString(id)).build();
     }
 
     @Override
