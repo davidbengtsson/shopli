@@ -16,8 +16,9 @@ public class ProductTable {
             + "("
             + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + COLUMN_DESCRIPTION + " TEXT NOT NULL, "
-            + COLUMN_PRICE + " INTEGER DEFAULT 0 CHECK(" + COLUMN_PRICE + " >= 0),"
-            + COLUMN_PRICE_UNIT + " CHAR(10) NOT NULL CHECK(" + COLUMN_PRICE_UNIT + " IN ('bag', 'dozen', 'bottle', 'can'))"
+            + COLUMN_PRICE + " INTEGER DEFAULT 0 CHECK(" + COLUMN_PRICE + " >= 0), "
+            + COLUMN_PRICE_UNIT + " CHAR(10) NOT NULL CHECK(" + COLUMN_PRICE_UNIT + " IN ('bag', 'dozen', 'bottle', 'can')), "
+            + "UNIQUE(" + COLUMN_DESCRIPTION  + ","  + COLUMN_PRICE_UNIT + ") ON CONFLICT REPLACE"
             + ");";
 
     static void onCreate(SQLiteDatabase database) {

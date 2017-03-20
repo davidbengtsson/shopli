@@ -1,24 +1,43 @@
 package ch.dben.shopli;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+import ch.dben.shopli.content.ProductsContract;
+import ch.dben.shopli.ui.ProductOverviewFragment;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, ProductOverviewFragment.OnListFragmentInteractionListener {
+
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
+
+        if (savedInstanceState == null) {
+            initData();
+
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.content, new ProductOverviewFragment())
+                    .commit();
+        }
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -39,6 +58,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+    }
+
+    private void initData() {
+
+        ContentResolver resolver = getContentResolver();
+
+        ContentValues[] valuesProducts = new ContentValues[4];
+        valuesProducts[0] = new ContentValues();
+        valuesProducts[0].put(ProductsContract.Columns.COLUMN_DESCRIPTION, "Tomatoes");
+        valuesProducts[0].put(ProductsContract.Columns.COLUMN_PRICE, 95);
+        valuesProducts[0].put(ProductsContract.Columns.COLUMN_PRICE_UNIT, "bag");
+
+        valuesProducts[1] = new ContentValues();
+        valuesProducts[1].put(ProductsContract.Columns.COLUMN_DESCRIPTION, "Eggs");
+        valuesProducts[1].put(ProductsContract.Columns.COLUMN_PRICE, 210);
+        valuesProducts[1].put(ProductsContract.Columns.COLUMN_PRICE_UNIT, "dozen");
+
+        valuesProducts[2] = new ContentValues();
+        valuesProducts[2].put(ProductsContract.Columns.COLUMN_DESCRIPTION, "Milk");
+        valuesProducts[2].put(ProductsContract.Columns.COLUMN_PRICE, 130);
+        valuesProducts[2].put(ProductsContract.Columns.COLUMN_PRICE_UNIT, "bottle");
+
+        valuesProducts[3] = new ContentValues();
+        valuesProducts[3].put(ProductsContract.Columns.COLUMN_DESCRIPTION, "Beans");
+        valuesProducts[3].put(ProductsContract.Columns.COLUMN_PRICE, 73);
+        valuesProducts[3].put(ProductsContract.Columns.COLUMN_PRICE_UNIT, "can");
+
+        resolver.bulkInsert(ProductsContract.CONTENT_URI, valuesProducts);
     }
 
     @Override
@@ -96,5 +143,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onProductSelected(long id) {
+        Log.d(TAG, "Product selected: " + id);
     }
 }
