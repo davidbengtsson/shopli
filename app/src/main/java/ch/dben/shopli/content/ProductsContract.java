@@ -11,8 +11,7 @@ public class ProductsContract {
     public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/products";
     public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/product";
 
-    public interface Columns {
-        String COLUMN_ID = "_id";
+    public interface Columns extends BaseColumns {
         String COLUMN_DESCRIPTION = "description";
         String COLUMN_PRICE = "price";
         String COLUMN_PRICE_UNIT = "price_unit";

@@ -65,6 +65,28 @@ public class ShopliContentProviderTest extends ProviderTestCase2<ShopliContentPr
         assertEquals(5, cursor.getInt(cursor.getColumnIndex(ShoppingBasketContract.Columns.COLUMN_QUANTITY)));
     }
 
+    public void testShoppingBasketView() {
+        Uri uri = mMockResolver.insert(ProductsContract.CONTENT_URI, getProductContentValues());
+        long id = ContentUris.parseId(uri);
+        assertEquals(1L, id);
+
+        mMockResolver.insert(ShoppingBasketContract.CONTENT_URI, getBasketContentValues(id, 1));
+        mMockResolver.insert(ShoppingBasketContract.CONTENT_URI, getBasketContentValues(id, 1));
+        mMockResolver.insert(ShoppingBasketContract.CONTENT_URI, getBasketContentValues(id, 1));
+        mMockResolver.insert(ShoppingBasketContract.CONTENT_URI, getBasketContentValues(id, 1));
+        mMockResolver.insert(ShoppingBasketContract.CONTENT_URI, getBasketContentValues(id, 1));
+
+        Cursor cursor = mMockResolver.query(ShoppingBasketContract.CONTENT_URI, new String[] {ShoppingBasketContract.Columns.COLUMN_COST}, null, null, null);
+
+        assertNotNull(cursor);
+        assertEquals(1, cursor.getCount());
+
+        assertTrue(cursor.moveToFirst());
+
+        assertEquals(500, cursor.getInt(cursor.getColumnIndex(ShoppingBasketContract.Columns.COLUMN_COST)));
+    }
+
+
     private ContentValues getProductContentValues() {
         ContentValues values = new ContentValues();
         values.put(ProductsContract.Columns.COLUMN_DESCRIPTION, "test");

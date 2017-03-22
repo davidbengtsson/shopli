@@ -12,9 +12,13 @@ public class ShoppingBasketContract {
     public static final String CONTENT_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/products";
     public static final String CONTENT_ITEM_TYPE = ContentResolver.CURSOR_ITEM_BASE_TYPE + "/product";
 
-    public interface Columns extends ProductsContract.Columns {
+    public interface Entity extends BaseColumns {
         String COLUMN_QUANTITY = "quantity";
         String COLUMN_PRODUCT_ID = "product_id";
+    }
+
+    public interface Columns extends Entity, ProductsContract.Columns {
+        String COLUMN_COST = "cost";
     }
 
     private ShoppingBasketContract() {

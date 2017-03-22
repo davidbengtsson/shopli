@@ -9,15 +9,11 @@ import java.util.HashSet;
 import ch.dben.shopli.content.ProductsContract;
 import ch.dben.shopli.content.ShoppingBasketContract;
 
-public class ShoppingBasketTable implements ShoppingBasketContract.Columns {
+public class ShoppingBasketTable implements ShoppingBasketContract.Entity {
 
     private static final String TAG = ShoppingBasketTable.class.getName();
 
     public static final String TABLE_NAME = "shoppingbasket";
-
-    public static final String TABLE_PRODUCTS_JOIN = TABLE_NAME + " INNER JOIN " + ProductTable.TABLE_NAME
-            + " ON " + COLUMN_PRODUCT_ID + " = (" + ProductTable.TABLE_NAME + "." + COLUMN_ID + ")";
-
 
     private static final String DATABASE_CREATE = "CREATE TABLE " + TABLE_NAME
             + "("
@@ -39,12 +35,9 @@ public class ShoppingBasketTable implements ShoppingBasketContract.Columns {
 
     public static void checkProjection(String... projection) {
         String[] available = {
-                COLUMN_PRODUCT_ID,
-                COLUMN_QUANTITY,
                 COLUMN_ID,
-                COLUMN_DESCRIPTION,
-                COLUMN_PRICE,
-                COLUMN_PRICE_UNIT
+                COLUMN_PRODUCT_ID,
+                COLUMN_QUANTITY
         };
 
         if (projection != null) {

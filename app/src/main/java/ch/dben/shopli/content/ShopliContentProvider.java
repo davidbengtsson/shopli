@@ -1,7 +1,6 @@
 package ch.dben.shopli.content;
 
 import android.content.ContentProvider;
-import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -14,6 +13,7 @@ import android.support.annotation.Nullable;
 import ch.dben.shopli.content.data.DatabaseHelper;
 import ch.dben.shopli.content.data.ProductTable;
 import ch.dben.shopli.content.data.ShoppingBasketTable;
+import ch.dben.shopli.content.data.ShoppingBasketView;
 
 public class ShopliContentProvider extends ContentProvider {
 
@@ -46,27 +46,27 @@ public class ShopliContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Cursor query(@NonNull Uri uri, @Nullable String[] projection, @Nullable String selection, @Nullable String[] selectionArgs, @Nullable String sortOrder) {
-        ProductTable.checkProjection(projection);
-
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         queryBuilder.setTables(ProductTable.TABLE_NAME);
 
-        String groupBy = null;
         int uriType = sURIMatcher.match(uri);
         switch (uriType) {
             case PRODUCTS:
+                ProductTable.checkProjection(projection);
                 queryBuilder.setTables(ProductTable.TABLE_NAME);
                 break;
             case PRODUCT_ID:
+                ProductTable.checkProjection(projection);
                 queryBuilder.setTables(ProductTable.TABLE_NAME);
                 queryBuilder.appendWhere(ProductsContract.Columns.COLUMN_ID + "=" + uri.getLastPathSegment());
                 break;
             case BASKET:
-                queryBuilder.setTables(ShoppingBasketTable.TABLE_PRODUCTS_JOIN);
-//                groupBy = ShoppingBasketContract.Columns.COLUMN_PRODUCT_ID;
+                ShoppingBasketView.checkProjection(projection);
+                queryBuilder.setTables(ShoppingBasketView.VIEW_NAME);
                 break;
             case BASKET_ID:
-                queryBuilder.setTables(ShoppingBasketTable.TABLE_PRODUCTS_JOIN);
+                ShoppingBasketView.checkProjection(projection);
+                queryBuilder.setTables(ShoppingBasketView.VIEW_NAME);
                 queryBuilder.appendWhere(ShoppingBasketContract.Columns.COLUMN_ID + "=" + uri.getLastPathSegment());
                 break;
             default:
@@ -74,7 +74,7 @@ public class ShopliContentProvider extends ContentProvider {
         }
 
         SQLiteDatabase db = database.getReadableDatabase();
-        Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, groupBy, null, sortOrder);
+        Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
@@ -135,7 +135,7 @@ public class ShopliContentProvider extends ContentProvider {
                 break;
             case PRODUCT_ID:
                 tableName = ProductTable.TABLE_NAME;
-                selection = ProductsContract.Columns.COLUMN_ID +  " = " + uri.getLastPathSegment();
+                selection = ProductsContract.Columns.COLUMN_ID + " = " + uri.getLastPathSegment();
                 break;
 
             case BASKET:
@@ -144,7 +144,7 @@ public class ShopliContentProvider extends ContentProvider {
 
             case BASKET_ID:
                 tableName = ShoppingBasketTable.TABLE_NAME;
-                selection = ShoppingBasketContract.Columns.COLUMN_ID +  " = " + uri.getLastPathSegment();
+                selection = ShoppingBasketContract.Columns.COLUMN_ID + " = " + uri.getLastPathSegment();
                 break;
 
             default:

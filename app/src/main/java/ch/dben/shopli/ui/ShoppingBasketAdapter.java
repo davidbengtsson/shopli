@@ -24,6 +24,7 @@ public class ShoppingBasketAdapter extends CursorAdapter {
     private int columnIndexQuantity;
     private int columnIndexPrice;
     private int columnIndexPriceUnit;
+    private int columnIndexCost;
 
     public ShoppingBasketAdapter(Context context, Cursor cursor) {
         super(context, cursor, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
@@ -48,9 +49,9 @@ public class ShoppingBasketAdapter extends CursorAdapter {
 
         int quantity = cursor.getInt(columnIndexQuantity);
         String unit = cursor.getString(columnIndexPriceUnit);
-        int price = cursor.getInt(columnIndexPrice);
+        int cost = cursor.getInt(columnIndexCost);
         quantityLabel.setText(String.format(Locale.ROOT, "%d %s", quantity, unit));
-        priceLabel.setText(mCurrencyFormatter.format(price/100.0f));
+        priceLabel.setText(mCurrencyFormatter.format(cost/100.0f));
 
     }
 
@@ -64,6 +65,7 @@ public class ShoppingBasketAdapter extends CursorAdapter {
             columnIndexQuantity = newCursor.getColumnIndexOrThrow(ShoppingBasketContract.Columns.COLUMN_QUANTITY);
             columnIndexPrice = newCursor.getColumnIndexOrThrow(ShoppingBasketContract.Columns.COLUMN_PRICE);
             columnIndexPriceUnit = newCursor.getColumnIndexOrThrow(ShoppingBasketContract.Columns.COLUMN_PRICE_UNIT);
+            columnIndexCost = newCursor.getColumnIndexOrThrow(ShoppingBasketContract.Columns.COLUMN_COST);
         }
 
         return super.swapCursor(newCursor);
