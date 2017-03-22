@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import ch.dben.shopli.content.ProductsContract;
 import ch.dben.shopli.ui.ProductOverviewFragment;
+import ch.dben.shopli.ui.ShoppingBasketFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, ProductOverviewFragment.OnListFragmentInteractionListener {
 
@@ -44,12 +45,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.basket);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Snackbar.make(view, "Shopping basket", Snackbar.LENGTH_LONG)
+                        .setAction("Open", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Log.d(TAG, "Time to show shopping basket");
+                                getFragmentManager().beginTransaction()
+                                        .replace(R.id.content, new ShoppingBasketFragment())
+                                        .addToBackStack(null)
+                                        .commit();
+                            }
+                        }).show();
             }
         });
 
@@ -153,7 +163,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Log.d(TAG, "Product selected: " + id);
         ShoppingBasketHelper.getsInstance().addToBasket(id, 1);
 
-        Toast.makeText(this, "Added product to basket", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, R.string.notification_added_to_basket, Toast.LENGTH_SHORT).show();
     }
 
     @Override

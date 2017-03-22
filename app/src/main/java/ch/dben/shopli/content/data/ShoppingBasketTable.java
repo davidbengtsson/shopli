@@ -9,7 +9,7 @@ import java.util.HashSet;
 import ch.dben.shopli.content.ProductsContract;
 import ch.dben.shopli.content.ShoppingBasketContract;
 
-public class ShoppingBasketTable implements ShoppingBasketContract.Columns, ShoppingBasketContract.ProductColumns{
+public class ShoppingBasketTable implements ShoppingBasketContract.Columns {
 
     private static final String TAG = ShoppingBasketTable.class.getName();
 

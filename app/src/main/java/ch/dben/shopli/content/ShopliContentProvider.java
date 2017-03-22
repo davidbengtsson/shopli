@@ -1,8 +1,8 @@
 package ch.dben.shopli.content;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,7 +11,6 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import ch.dben.shopli.MainActivity;
 import ch.dben.shopli.content.data.DatabaseHelper;
 import ch.dben.shopli.content.data.ProductTable;
 import ch.dben.shopli.content.data.ShoppingBasketTable;
@@ -27,6 +26,7 @@ public class ShopliContentProvider extends ContentProvider {
     private static final int BASKET_ID = 201;
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
     static {
         sURIMatcher.addURI(AUTHORITY, ProductsContract.BASE_PATH, PRODUCTS);
         sURIMatcher.addURI(AUTHORITY, ProductsContract.BASE_PATH + "/#", PRODUCT_ID);
@@ -51,6 +51,7 @@ public class ShopliContentProvider extends ContentProvider {
         SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
         queryBuilder.setTables(ProductTable.TABLE_NAME);
 
+        String groupBy = null;
         int uriType = sURIMatcher.match(uri);
         switch (uriType) {
             case PRODUCTS:
@@ -58,15 +59,14 @@ public class ShopliContentProvider extends ContentProvider {
                 break;
             case PRODUCT_ID:
                 queryBuilder.setTables(ProductTable.TABLE_NAME);
-                // append the ID to the query
                 queryBuilder.appendWhere(ProductsContract.Columns.COLUMN_ID + "=" + uri.getLastPathSegment());
                 break;
             case BASKET:
                 queryBuilder.setTables(ShoppingBasketTable.TABLE_PRODUCTS_JOIN);
+//                groupBy = ShoppingBasketContract.Columns.COLUMN_PRODUCT_ID;
                 break;
             case BASKET_ID:
                 queryBuilder.setTables(ShoppingBasketTable.TABLE_PRODUCTS_JOIN);
-                // append the ID to the query
                 queryBuilder.appendWhere(ShoppingBasketContract.Columns.COLUMN_ID + "=" + uri.getLastPathSegment());
                 break;
             default:
@@ -74,7 +74,7 @@ public class ShopliContentProvider extends ContentProvider {
         }
 
         SQLiteDatabase db = database.getReadableDatabase();
-        Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
+        Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, groupBy, null, sortOrder);
         cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
@@ -104,9 +104,9 @@ public class ShopliContentProvider extends ContentProvider {
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        int uriType = sURIMatcher.match(uri);
         SQLiteDatabase sqlDB = database.getWritableDatabase();
         long id;
+        int uriType = sURIMatcher.match(uri);
         switch (uriType) {
             case PRODUCTS:
                 id = sqlDB.insert(ProductTable.TABLE_NAME, null, values);
@@ -119,13 +119,40 @@ public class ShopliContentProvider extends ContentProvider {
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
+
         getContext().getContentResolver().notifyChange(uri, null);
         return uri.buildUpon().appendPath(Long.toString(id)).build();
     }
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        throw new IllegalStateException("Delete not implemented, yet");
+        String tableName;
+        int uriType = sURIMatcher.match(uri);
+        switch (uriType) {
+
+            case PRODUCTS:
+                tableName = ProductTable.TABLE_NAME;
+                break;
+            case PRODUCT_ID:
+                tableName = ProductTable.TABLE_NAME;
+                selection = ProductsContract.Columns.COLUMN_ID +  " = " + uri.getLastPathSegment();
+                break;
+
+            case BASKET:
+                tableName = ShoppingBasketTable.TABLE_NAME;
+                break;
+
+            case BASKET_ID:
+                tableName = ShoppingBasketTable.TABLE_NAME;
+                selection = ShoppingBasketContract.Columns.COLUMN_ID +  " = " + uri.getLastPathSegment();
+                break;
+
+            default:
+                throw new IllegalArgumentException("Unknown URI: " + uri);
+        }
+
+        SQLiteDatabase sqlDB = database.getWritableDatabase();
+        return sqlDB.delete(tableName, selection, selectionArgs);
     }
 
     @Override
