@@ -16,7 +16,7 @@ public class ShoppingBasketView implements ShoppingBasketContract.Columns {
 
     private static final String DATABASE_CREATE = "CREATE VIEW " + VIEW_NAME + " AS "
             + "SELECT "
-            + ShoppingBasketTable.TABLE_NAME + "." + ShoppingBasketTable.COLUMN_ID + " AS " + COLUMN_ID + ", "
+            + ProductTable.TABLE_NAME + "." + ProductTable.COLUMN_ID + " AS " + COLUMN_ID + ", "
             + "SUM(" + ShoppingBasketTable.TABLE_NAME + "." + ShoppingBasketTable.COLUMN_QUANTITY + ") AS " + COLUMN_QUANTITY + ", "
             + ShoppingBasketTable.TABLE_NAME + "." + ShoppingBasketTable.COLUMN_PRODUCT_ID + " AS " + COLUMN_PRODUCT_ID + ", "
             + ProductTable.TABLE_NAME + "." + ProductTable.COLUMN_DESCRIPTION + " AS " + COLUMN_DESCRIPTION + ", "
@@ -28,6 +28,9 @@ public class ShoppingBasketView implements ShoppingBasketContract.Columns {
             + " INNER JOIN " + ProductTable.TABLE_NAME
             + " ON " + ShoppingBasketTable.TABLE_NAME + "." + ShoppingBasketTable.COLUMN_PRODUCT_ID + " = " + ProductTable.TABLE_NAME + "." + ProductTable.COLUMN_ID
             + " GROUP BY " + COLUMN_PRODUCT_ID;
+
+    public static final String PROJECTION_TOTAL_COST = "SUM(" + COLUMN_COST + ") AS "
+            + ShoppingBasketContract.TotalCost.Columns.COLUMN_TOTAL_COST;
 
     static void onCreate(SQLiteDatabase database) {
         database.execSQL(DATABASE_CREATE);

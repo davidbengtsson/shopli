@@ -21,6 +21,17 @@ public class ShoppingBasketContract {
         String COLUMN_COST = "cost";
     }
 
+    public static class TotalCost {
+
+        public static final Uri CONTENT_URI = ShoppingBasketContract.CONTENT_URI.buildUpon().appendPath("sum").build();
+
+        protected static final String BASE_PATH = CONTENT_URI.getPath();
+
+        public interface Columns {
+            String COLUMN_TOTAL_COST = "total_cost";
+        }
+    }
+
     private ShoppingBasketContract() {
     }
 }

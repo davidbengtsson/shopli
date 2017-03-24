@@ -24,6 +24,7 @@ public class ShopliContentProvider extends ContentProvider {
 
     private static final int BASKET = 200;
     private static final int BASKET_ID = 201;
+    private static final int BASKET_SUM = 299;
 
     private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
@@ -33,6 +34,7 @@ public class ShopliContentProvider extends ContentProvider {
 
         sURIMatcher.addURI(AUTHORITY, ShoppingBasketContract.BASE_PATH, BASKET);
         sURIMatcher.addURI(AUTHORITY, ShoppingBasketContract.BASE_PATH + "/#", BASKET_ID);
+        sURIMatcher.addURI(AUTHORITY, ShoppingBasketContract.TotalCost.BASE_PATH, BASKET_SUM);
     }
 
     private DatabaseHelper database;
@@ -69,6 +71,14 @@ public class ShopliContentProvider extends ContentProvider {
                 queryBuilder.setTables(ShoppingBasketView.VIEW_NAME);
                 queryBuilder.appendWhere(ShoppingBasketContract.Columns.COLUMN_ID + "=" + uri.getLastPathSegment());
                 break;
+
+            case BASKET_SUM:
+                projection = new String[]{ShoppingBasketView.PROJECTION_TOTAL_COST};
+                selection = null;
+                selectionArgs = null;
+                queryBuilder.setTables(ShoppingBasketView.VIEW_NAME);
+                break;
+
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
