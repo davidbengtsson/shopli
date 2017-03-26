@@ -40,7 +40,8 @@ public class ShopliContentProviderTest extends ProviderTestCase2<ShopliContentPr
     }
 
     public void testProductInsert_product_contains_valid_data() {
-        Uri uri = mMockResolver.insert(ProductsContract.CONTENT_URI, getProductContentValues());
+        mMockResolver.insert(ProductsContract.CONTENT_URI, getProductContentValues());
+
         Cursor cursor = mMockResolver.query(ProductsContract.CONTENT_URI, null, null, new String[]{}, null);
         assertNotNull(cursor);
         assertEquals(1, cursor.getCount());
@@ -58,7 +59,6 @@ public class ShopliContentProviderTest extends ProviderTestCase2<ShopliContentPr
         mMockResolver.insert(ShoppingBasketContract.CONTENT_URI, getBasketContentValues(id, 5));
 
         Cursor cursor = mMockResolver.query(ShoppingBasketContract.CONTENT_URI, null, null, null, null);
-
         assertNotNull(cursor);
         assertEquals(1, cursor.getCount());
 
@@ -110,6 +110,60 @@ public class ShopliContentProviderTest extends ProviderTestCase2<ShopliContentPr
         assertEquals(5 * TEST_PRODUCT_PRICE + 2 * altProductPrice, cursor.getInt(cursor.getColumnIndex(ShoppingBasketContract.TotalCost.Columns.COLUMN_TOTAL_COST)));
     }
 
+    public void testCurrencyCodeMustContain3Characters() {
+        Uri uri = mMockResolver.insert(CurrencyContract.CONTENT_URI, getCurrencyValues("A", "name"));
+        assertEquals(-1L, ContentUris.parseId(uri));
+
+        uri = mMockResolver.insert(CurrencyContract.CONTENT_URI, getCurrencyValues("AA", "name"));
+        assertEquals(-1L, ContentUris.parseId(uri));
+
+        uri = mMockResolver.insert(CurrencyContract.CONTENT_URI, getCurrencyValues("AAAA", "name"));
+        assertEquals(-1L, ContentUris.parseId(uri));
+
+        uri = mMockResolver.insert(CurrencyContract.CONTENT_URI, getCurrencyValues("AAA", "name"));
+        assertEquals(1L, ContentUris.parseId(uri));
+    }
+
+    public void testUniqueCaseInsensitiveCurrencyCodes() {
+
+        Uri uri  = mMockResolver.insert(CurrencyContract.CONTENT_URI, getCurrencyValues("AAA", "name"));
+        assertEquals(1L, ContentUris.parseId(uri));
+
+        uri = mMockResolver.insert(CurrencyContract.CONTENT_URI, getCurrencyValues("BBB", "name"));
+        assertEquals(2L, ContentUris.parseId(uri));
+
+        uri = mMockResolver.insert(CurrencyContract.CONTENT_URI, getCurrencyValues("aAa", "name"));
+        assertEquals(-1L, ContentUris.parseId(uri));
+    }
+
+    public void testUpdatesExistingQuote() {
+        String testIsoCode = "ABC";
+        double testQuote = 1.23;
+        String testName =  "Very long and complicated name";
+
+        Uri uri = mMockResolver.insert(CurrencyContract.CONTENT_URI, getCurrencyValues(testIsoCode, testName));
+        assertEquals(1L, ContentUris.parseId(uri));
+
+        Cursor cursor = mMockResolver.query(CurrencyContract.getIsoContentUri(testIsoCode), null, null, null, null);
+        assertNotNull(cursor);
+        assertEquals(1, cursor.getCount());
+
+        assertTrue(cursor.moveToFirst());
+        assertEquals(1.0, cursor.getDouble(cursor.getColumnIndex(CurrencyContract.Columns.COLUMN_QUOTE)));
+
+        int updated = mMockResolver.update(CurrencyContract.getIsoContentUri(testIsoCode), getCurrencyValues(testQuote), null, null);
+        assertEquals(1, updated);
+
+        cursor = mMockResolver.query(CurrencyContract.CONTENT_URI, null, null, null, null);
+        assertNotNull(cursor);
+        assertEquals(1, cursor.getCount());
+
+        assertTrue(cursor.moveToFirst());
+        assertEquals(testIsoCode, cursor.getString(cursor.getColumnIndex(CurrencyContract.Columns.COLUMN_ISO)));
+        assertEquals(testQuote, cursor.getDouble(cursor.getColumnIndex(CurrencyContract.Columns.COLUMN_QUOTE)));
+        assertEquals(testName, cursor.getString(cursor.getColumnIndex(CurrencyContract.Columns.COLUMN_NAME)));
+    }
+
     private ContentValues getProductContentValues() {
         return getProductContentValues(TEST_PRODUCT_DESCRIPTION, TEST_PRODUCT_PRICE, TEST_PRODUCT_PRICE_UNIT);
     }
@@ -127,6 +181,22 @@ public class ShopliContentProviderTest extends ProviderTestCase2<ShopliContentPr
         ContentValues values = new ContentValues();
         values.put(ShoppingBasketContract.Columns.COLUMN_PRODUCT_ID, id);
         values.put(ShoppingBasketContract.Columns.COLUMN_QUANTITY, quantity);
+
+        return values;
+    }
+
+    public ContentValues getCurrencyValues(String isoCode, String name) {
+        ContentValues values = new ContentValues();
+        values.put(CurrencyContract.Columns.COLUMN_ISO, isoCode);
+        values.put(CurrencyContract.Columns.COLUMN_NAME, name);
+
+        return values;
+    }
+
+    public ContentValues getCurrencyValues(double quote) {
+        ContentValues values = new ContentValues();
+
+        values.put(CurrencyContract.Columns.COLUMN_QUOTE, quote);
 
         return values;
     }
