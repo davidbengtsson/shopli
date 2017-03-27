@@ -169,6 +169,7 @@ public class ShopliContentProvider extends ContentProvider {
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
         String tableName;
+        Uri notificationUri = null;
         int uriType = sURIMatcher.match(uri);
         switch (uriType) {
 
@@ -178,6 +179,7 @@ public class ShopliContentProvider extends ContentProvider {
             case PRODUCT_ID:
                 tableName = ProductTable.TABLE_NAME;
                 selection = ProductTable.COLUMN_ID + " = " + uri.getLastPathSegment();
+                notificationUri = ProductsContract.CONTENT_URI;
                 break;
 
             case BASKET:
@@ -186,6 +188,7 @@ public class ShopliContentProvider extends ContentProvider {
             case BASKET_ID:
                 tableName = ShoppingBasketTable.TABLE_NAME;
                 selection = ShoppingBasketTable.COLUMN_PRODUCT_ID + " = " + uri.getLastPathSegment();
+                notificationUri = ShoppingBasketContract.CONTENT_URI;
                 break;
 
             case CURRENCIES:
@@ -194,10 +197,12 @@ public class ShopliContentProvider extends ContentProvider {
             case CURRENCY_ID:
                 tableName = CurrencyTable.TABLE_NAME;
                 selection = CurrencyTable.COLUMN_ID + " = " + uri.getLastPathSegment();
+                notificationUri = CurrencyContract.CONTENT_URI;
                 break;
             case CURRENCY_ISO:
                 tableName = CurrencyTable.TABLE_NAME;
                 selection = CurrencyTable.COLUMN_ISO + " = \"" + uri.getLastPathSegment() + "\"";
+                notificationUri = CurrencyContract.CONTENT_URI;
                 break;
 
             default:
@@ -206,7 +211,11 @@ public class ShopliContentProvider extends ContentProvider {
 
         SQLiteDatabase sqlDB = database.getWritableDatabase();
         int deleted = sqlDB.delete(tableName, selection, selectionArgs);
-        getContext().getContentResolver().notifyChange(uri, null);
+        if (notificationUri != null) {
+            getContext().getContentResolver().notifyChange(notificationUri, null);
+        } else {
+            getContext().getContentResolver().notifyChange(uri, null);
+        }
         return deleted;
     }
 

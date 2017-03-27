@@ -7,8 +7,8 @@
     <ListView
         android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/sumLabel"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         tools:context="ch.dben.shopli.ui.ShoppingBasketFragment"
@@ -16,9 +16,11 @@
 
     <TextView
         android:id="@+id/sumLabel"
+        android:layout_below="@android:id/list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:text="SUM:" />
+        android:textStyle="bold"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:padding="20dp" />
 
 </RelativeLayout>
