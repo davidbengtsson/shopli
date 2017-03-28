@@ -9,21 +9,31 @@ import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CursorAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
+
+import org.w3c.dom.Text;
 
 import java.util.Locale;
 
 import ch.dben.shopli.R;
+import ch.dben.shopli.content.CurrencyContract;
 import ch.dben.shopli.content.ShoppingBasketContract;
 
 public class ShoppingBasketFragment extends ListFragment {
 
-    private CursorAdapter mAdapter;
+    private static final String TAG = ShoppingBasketFragment.class.getSimpleName();
+    private ShoppingBasketAdapter mBasketAdapter;
+    private CurrencyAdapter mCurrencyAdapter;
+    private ShoppingBasketSumAdapter mTotalSumAdapter;
+
+    private CurrencyAdapter.CurrencyHolder mHolder;
 
     private final LoaderManager.LoaderCallbacks<Cursor> mBasketLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
 
@@ -34,12 +44,30 @@ public class ShoppingBasketFragment extends ListFragment {
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-            mAdapter.swapCursor(data);
+            mBasketAdapter.swapCursor(data);
         }
 
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
-            mAdapter.swapCursor(null);
+            mBasketAdapter.swapCursor(null);
+        }
+    };
+
+    private final LoaderManager.LoaderCallbacks<Cursor> mCurrencyLoaderCallbacks = new LoaderManager.LoaderCallbacks<Cursor>() {
+
+        @Override
+        public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+            return new CursorLoader(getActivity(), CurrencyContract.CONTENT_URI, null, null, null, null);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+            mCurrencyAdapter.swapCursor(data);
+        }
+
+        @Override
+        public void onLoaderReset(Loader<Cursor> loader) {
+            mCurrencyAdapter.swapCursor(null);
         }
     };
 
@@ -52,26 +80,22 @@ public class ShoppingBasketFragment extends ListFragment {
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-            updateSumLabel(data);
+            mTotalSumAdapter.swapCursor(data);
+            refreshSumLabel();
         }
 
         @Override
         public void onLoaderReset(Loader<Cursor> loader) {
-            updateSumLabel(null);;
+            mTotalSumAdapter.swapCursor(null);
+            refreshSumLabel();
         }
     };
+
     private TextView mSumLabel;
+    private Spinner mCurrencySelector;
 
-    private void updateSumLabel(Cursor data) {
-        if (mSumLabel != null) {
-
-            int sum = 0;
-            if (data != null && data.moveToFirst()) {
-                sum = data.getInt(data.getColumnIndex(ShoppingBasketContract.TotalCost.Columns.COLUMN_TOTAL_COST));
-            }
-
-            mSumLabel.setText(String.format(Locale.ROOT, "Total cost: %.2f %s", sum/100.0f, "USD"));
-        }
+    private void refreshSumLabel() {
+        mTotalSumAdapter.bindView(mSumLabel);
     }
 
     /**
@@ -85,11 +109,14 @@ public class ShoppingBasketFragment extends ListFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mAdapter = new ShoppingBasketAdapter(getActivity(), null);
+        mBasketAdapter = new ShoppingBasketAdapter(getActivity(), null);
+        mCurrencyAdapter = new CurrencyAdapter(getActivity(), null);
+        mTotalSumAdapter = new ShoppingBasketSumAdapter();
         getLoaderManager().initLoader(1, null, mBasketLoaderCallbacks);
         getLoaderManager().initLoader(2, null, mBasketSumLoaderCallbacks);
+        getLoaderManager().initLoader(3, null, mCurrencyLoaderCallbacks);
 
-        setListAdapter(mAdapter);
+        setListAdapter(mBasketAdapter);
     }
 
     @Override
@@ -102,6 +129,26 @@ public class ShoppingBasketFragment extends ListFragment {
         super.onViewCreated(view, savedInstanceState);
 
         mSumLabel = (TextView) view.findViewById(R.id.sumLabel);
+        mCurrencySelector = (Spinner) view.findViewById(R.id.currencySelector);
+        mCurrencySelector.setAdapter(mCurrencyAdapter);
+        mCurrencySelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(TAG, "Selected currency : " + id);
+
+                mHolder = (CurrencyAdapter.CurrencyHolder) mCurrencySelector.getSelectedView().getTag();
+                ((TextView)mCurrencySelector.getSelectedView()).setText(mHolder.isoCode + " (" + Double.toString(mHolder.quote) + ")");
+
+                mBasketAdapter.setCurrency(mHolder);
+                mTotalSumAdapter.setCurrency(mHolder);
+                refreshSumLabel();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                Log.d(TAG, "No currency selected");
+            }
+        });
 
         getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override

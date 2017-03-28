@@ -9,6 +9,7 @@ import android.widget.CursorAdapter;
 import android.widget.TextView;
 
 import java.text.NumberFormat;
+import java.util.Currency;
 import java.util.Locale;
 
 import ch.dben.shopli.R;
@@ -25,12 +26,16 @@ public class ShoppingBasketAdapter extends CursorAdapter {
     private int columnIndexPrice;
     private int columnIndexPriceUnit;
     private int columnIndexCost;
+    private CurrencyAdapter.CurrencyHolder mHolder;
 
     public ShoppingBasketAdapter(Context context, Cursor cursor) {
         super(context, cursor, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
-        Locale locale = new Locale("en", "US");
-        mCurrencyFormatter = NumberFormat.getCurrencyInstance(locale);
+        mCurrencyFormatter = NumberFormat.getInstance();
+        mCurrencyFormatter.setMaximumFractionDigits(2);
+        mCurrencyFormatter.setMinimumFractionDigits(2);
+        Currency currency = Currency.getInstance("USD");
+        mCurrencyFormatter.setCurrency(currency);
     }
 
     @Override
@@ -51,8 +56,7 @@ public class ShoppingBasketAdapter extends CursorAdapter {
         String unit = cursor.getString(columnIndexPriceUnit);
         int cost = cursor.getInt(columnIndexCost);
         quantityLabel.setText(String.format(Locale.ROOT, "%d %s", quantity, unit));
-        priceLabel.setText(mCurrencyFormatter.format(cost/100.0f));
-
+        priceLabel.setText(String.format("%s %s", mCurrencyFormatter.format((cost * (mHolder != null ? mHolder.quote : 1.0f))/100), mHolder != null ? mHolder.isoCode : "USD"));
     }
 
     @Override
@@ -69,5 +73,12 @@ public class ShoppingBasketAdapter extends CursorAdapter {
         }
 
         return super.swapCursor(newCursor);
+    }
+
+    public void setCurrency(CurrencyAdapter.CurrencyHolder holder) {
+
+        mHolder = holder;
+        mCurrencyFormatter.setCurrency(Currency.getInstance(holder.isoCode));
+        notifyDataSetChanged();
     }
 }
