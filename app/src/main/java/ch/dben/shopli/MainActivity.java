@@ -66,21 +66,25 @@ public class MainActivity extends AppCompatActivity implements ProductOverviewFr
         valuesProducts[0].put(ProductsContract.Columns.COLUMN_DESCRIPTION, "Tomatoes");
         valuesProducts[0].put(ProductsContract.Columns.COLUMN_PRICE, 95);
         valuesProducts[0].put(ProductsContract.Columns.COLUMN_PRICE_UNIT, "bag");
+        valuesProducts[0].put(ProductsContract.Columns.COLUMN_IMAGE_RESOURCE, R.drawable.tomatoes);
 
         valuesProducts[1] = new ContentValues();
         valuesProducts[1].put(ProductsContract.Columns.COLUMN_DESCRIPTION, "Eggs");
         valuesProducts[1].put(ProductsContract.Columns.COLUMN_PRICE, 210);
         valuesProducts[1].put(ProductsContract.Columns.COLUMN_PRICE_UNIT, "dozen");
+        valuesProducts[1].put(ProductsContract.Columns.COLUMN_IMAGE_RESOURCE, R.drawable.eggs);
 
         valuesProducts[2] = new ContentValues();
         valuesProducts[2].put(ProductsContract.Columns.COLUMN_DESCRIPTION, "Milk");
         valuesProducts[2].put(ProductsContract.Columns.COLUMN_PRICE, 130);
         valuesProducts[2].put(ProductsContract.Columns.COLUMN_PRICE_UNIT, "bottle");
+        valuesProducts[2].put(ProductsContract.Columns.COLUMN_IMAGE_RESOURCE, R.drawable.milk);
 
         valuesProducts[3] = new ContentValues();
         valuesProducts[3].put(ProductsContract.Columns.COLUMN_DESCRIPTION, "Beans");
         valuesProducts[3].put(ProductsContract.Columns.COLUMN_PRICE, 73);
         valuesProducts[3].put(ProductsContract.Columns.COLUMN_PRICE_UNIT, "can");
+        valuesProducts[3].put(ProductsContract.Columns.COLUMN_IMAGE_RESOURCE, R.drawable.beans);
 
         resolver.bulkInsert(ProductsContract.CONTENT_URI, valuesProducts);
     }

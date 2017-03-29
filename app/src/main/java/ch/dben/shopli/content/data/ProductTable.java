@@ -18,6 +18,7 @@ public class ProductTable implements ProductsContract.Columns {
             + "("
             + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + COLUMN_DESCRIPTION + " TEXT NOT NULL, "
+            + COLUMN_IMAGE_RESOURCE + " INTEGER DEFAULT 0, "
             + COLUMN_PRICE + " INTEGER DEFAULT 0 CHECK(" + COLUMN_PRICE + " >= 0), "
             + COLUMN_PRICE_UNIT + " CHAR(10) NOT NULL CHECK(" + COLUMN_PRICE_UNIT + " IN ('bag', 'dozen', 'bottle', 'can')), "
             + "UNIQUE(" + COLUMN_DESCRIPTION  + ","  + COLUMN_PRICE_UNIT + ") ON CONFLICT IGNORE"
@@ -37,6 +38,7 @@ public class ProductTable implements ProductsContract.Columns {
         String[] available = {
                 COLUMN_ID,
                 COLUMN_DESCRIPTION,
+                COLUMN_IMAGE_RESOURCE,
                 COLUMN_PRICE,
                 COLUMN_PRICE_UNIT
         };

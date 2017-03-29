@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import ch.dben.shopli.R;
@@ -13,7 +14,7 @@ import ch.dben.shopli.content.ProductsContract;
 
 public class ProductCursorAdapter extends CursorAdapter {
 
-    private int columnIndexId;
+    private int columnIndexImage;
     private int columnIndexDescription;
 
     public ProductCursorAdapter(Context context, Cursor cursor) {
@@ -28,10 +29,10 @@ public class ProductCursorAdapter extends CursorAdapter {
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        TextView id = (TextView) view.findViewById(R.id.id);
+        ImageView image = (ImageView) view.findViewById(R.id.image);
         TextView content = (TextView) view.findViewById(R.id.content);
 
-        id.setText(cursor.getString(columnIndexId));
+        image.setBackgroundResource(cursor.getInt(columnIndexImage));
         content.setText(cursor.getString(columnIndexDescription));
     }
 
@@ -39,7 +40,7 @@ public class ProductCursorAdapter extends CursorAdapter {
     public Cursor swapCursor(Cursor newCursor) {
 
         if (newCursor != null) {
-            columnIndexId = newCursor.getColumnIndexOrThrow(ProductsContract.Columns.COLUMN_ID);
+            columnIndexImage = newCursor.getColumnIndexOrThrow(ProductsContract.Columns.COLUMN_IMAGE_RESOURCE);
             columnIndexDescription = newCursor.getColumnIndexOrThrow(ProductsContract.Columns.COLUMN_DESCRIPTION);
         }
 

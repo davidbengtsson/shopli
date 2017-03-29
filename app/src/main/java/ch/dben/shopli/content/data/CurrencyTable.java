@@ -29,8 +29,13 @@ public class CurrencyTable implements CurrencyContract.Columns {
 
     static void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
         Log.w(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
-        database.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
-        onCreate(database);
+
+        if (oldVersion >= 6) {
+            database.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME);
+            onCreate(database);
+        }
+
+        // else no need to throw out data
     }
 
     public static void checkProjection(String... projection) {

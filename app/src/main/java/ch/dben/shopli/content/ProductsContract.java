@@ -13,6 +13,7 @@ public class ProductsContract {
 
     public interface Columns extends BaseColumns {
         String COLUMN_DESCRIPTION = "description";
+        String COLUMN_IMAGE_RESOURCE = "image_resource";
         String COLUMN_PRICE = "price";
         String COLUMN_PRICE_UNIT = "price_unit";
     }
