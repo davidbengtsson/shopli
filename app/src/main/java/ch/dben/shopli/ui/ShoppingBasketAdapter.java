@@ -32,7 +32,6 @@ public class ShoppingBasketAdapter extends CursorAdapter {
         super(context, cursor, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
 
         mCurrencyFormatter = NumberFormat.getInstance();
-        mCurrencyFormatter.setMaximumFractionDigits(2);
         mCurrencyFormatter.setMinimumFractionDigits(2);
         Currency currency = Currency.getInstance("USD");
         mCurrencyFormatter.setCurrency(currency);

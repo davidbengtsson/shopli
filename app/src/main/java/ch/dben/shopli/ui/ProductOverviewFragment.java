@@ -7,6 +7,10 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,7 +22,7 @@ import ch.dben.shopli.R;
 import ch.dben.shopli.content.ProductsContract;
 
 /**
- * A fragment representing a list of Items.
+ * A fragment representing a list of Products.
  * <p/>
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
@@ -64,7 +68,11 @@ public class ProductOverviewFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_product_overview, container, false);
+        return inflater.inflate(R.layout.fragment_product_overview, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
 
         GridView grid = (GridView) view.findViewById(R.id.gridview);
         grid.setAdapter(mAdapter);
@@ -75,7 +83,19 @@ public class ProductOverviewFragment extends Fragment {
             }
         });
 
-        return view;
+        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.basket);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Shopping basket", Snackbar.LENGTH_LONG)
+                        .setAction("Checkout", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                mListener.onCheckoutShoppingBasket();
+                            }
+                        }).show();
+            }
+        });
     }
 
     @Override
@@ -106,5 +126,7 @@ public class ProductOverviewFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         void onProductSelected(long id);
+
+        void onCheckoutShoppingBasket();
     }
 }

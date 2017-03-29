@@ -8,19 +8,17 @@ import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
+import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.CursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import org.w3c.dom.Text;
-
-import java.util.Locale;
+import java.text.DecimalFormat;
 
 import ch.dben.shopli.R;
 import ch.dben.shopli.content.CurrencyContract;
@@ -29,6 +27,7 @@ import ch.dben.shopli.content.ShoppingBasketContract;
 public class ShoppingBasketFragment extends ListFragment {
 
     private static final String TAG = ShoppingBasketFragment.class.getSimpleName();
+    private final DecimalFormat mDecimalFormat = new DecimalFormat();
     private ShoppingBasketAdapter mBasketAdapter;
     private CurrencyAdapter mCurrencyAdapter;
     private ShoppingBasketSumAdapter mTotalSumAdapter;
@@ -136,8 +135,10 @@ public class ShoppingBasketFragment extends ListFragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 Log.d(TAG, "Selected currency : " + id);
 
+                mDecimalFormat.setMaximumFractionDigits(100);
+
                 mHolder = (CurrencyAdapter.CurrencyHolder) mCurrencySelector.getSelectedView().getTag();
-                ((TextView)mCurrencySelector.getSelectedView()).setText(mHolder.isoCode + " (" + Double.toString(mHolder.quote) + ")");
+                ((TextView)mCurrencySelector.getSelectedView()).setText(mHolder.isoCode + " (" + mDecimalFormat.format(mHolder.quote) + ")");
 
                 mBasketAdapter.setCurrency(mHolder);
                 mTotalSumAdapter.setCurrency(mHolder);
