@@ -52,6 +52,18 @@ public class CurrencyAdapter extends CursorAdapter {
         return super.swapCursor(newCursor);
     }
 
+    public int findCurrencyByIso(String isoCode) {
+        if (getCursor() != null) {
+            while (getCursor().moveToNext()) {
+                if (isoCode.equals(getCursor().getString(columnIndexIso))) {
+                    return getCursor().getPosition();
+                }
+            }
+        }
+
+        return 0;
+    }
+
     class CurrencyHolder {
         String name;
         String isoCode;

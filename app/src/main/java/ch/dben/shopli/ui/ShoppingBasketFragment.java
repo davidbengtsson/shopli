@@ -61,7 +61,14 @@ public class ShoppingBasketFragment extends ListFragment {
 
         @Override
         public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
+            boolean firstLoad = mCurrencyAdapter.getCursor() == null;
             mCurrencyAdapter.swapCursor(data);
+
+            if (firstLoad && mCurrencySelector != null) {
+                int pos = mCurrencyAdapter.findCurrencyByIso("USD");
+                mCurrencySelector.setSelection(pos, false);
+            }
         }
 
         @Override
